@@ -1,0 +1,117 @@
+<html>
+<head>
+<title>NightOut</title> 
+<script src="jquery-3.6.0.min.js"></script>
+</head>
+<!-- including vue, apis, our css file, and our js files-->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script src="nightout.js"></script>
+<link rel="stylesheet" type="text/css" href="nightout.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+<!-- Body of the application-->
+<body>
+    <div id="app" class="container-fluid">
+        <div class="row">
+            <div class ="col-lg-2 mb-5">
+                <div id="toolbar" class="mt-5">
+                    <div id = "container" class="nav nav-pills nav-fill flex-column mt-5">
+                        <div class="col">
+                            <div class="rowi">                
+                                <h1>Night Out <img class="logo-pic" id="logo" src="images/logo.png" alt="logo"></h1>
+                            </div>
+                            <div class="rowi">
+                                <button type="button" class="btn btn-primary" id="plan-button">Plan Night Out</button>
+                            </div>
+                            <div class="rowi">
+                                <button type="button" class="btn btn-primary" id="help-button">Help/Info</button>
+                            </div>
+                        </div>     
+                    </div>
+                    <ol id="places"></ol>
+                </div>
+                <div id="help-window">
+                    <div class="help-content">
+                      <span class="close" aria-label="Close">&times;</span>
+                        <h2>About</h2>
+                        <p>A website to help you plan a night out of drinking with your friends.</p>
+                        <h2>How it Works</h2>
+                        <p>
+                            When you plan your night out the top three bars matching your search criteria are displayed. Our algorithm takes all of the prefernces you added, averages them and then goes through the ratings for each location in each category and finds the best three matches.<br>
+                            At anytime you can click on the fork and knife icon (for restaurants) or the martini icon (for bars) to see their info.
+                        </p>
+                        <h2>How to Use</h2>
+                        <p id = "Steps">
+                            <strong>Step 1:</strong> Click the "Plan Night Out" button in the top left of your screen.<br>
+                            <img class="help-pic" id="pres" src="images/helpImages/nightOutPress.png" alt="Help image"> <br>
+                            <strong>Step 2:</strong> Collect the cost and drink preferences of all of your friends.<br>
+                            <strong>Step 3:</strong> Create a profile for one of your friends by entering their name in the text field, and clicking on their cost and drink preferences.<br>
+                            <img class="help-pic" id="pref" src="images/helpImages/preferencesScreenshot.png" alt="Help image"> <br>
+                            <strong>Step 4:</strong> When your profile is ready click the "Create Profile Button"<br>
+                            <img class="help-pic" id="prof" src="images/helpImages/createProfileScreenshot.png" alt="Help image"> <br>
+                            <strong>Step 5:</strong> Repeat this process for all of your friends, you can remove a profile by clicking the "Delete Profile" button to the right of that profile or you can delete all of them by clicking "Delete All Profiles".<br> 
+                            <img class="help-pic" id="delt" src="images/helpImages/deleteScreenshot.png" alt="Help image"><br>
+                            <strong>Step 6:</strong> When your group is created press the "Plan Night Out" button.<br>
+                            <img class="help-pic" id="plan" src="images/helpImages/planScreenshot.png" alt="Help image"><br>
+                            <strong>Step 7:</strong> The map now displays pins for the top three bars that match your search criteria. Click on a pin to see the details. <br>
+                            <img class="help-pic" id="disp" src="images/helpImages/displayedScreenshot.png" alt="Help image"><br>
+                            <strong>Step 8:</strong> Choose an option, text your friends, and have a great night out! <br>
+                        </p>
+                    </div>
+                </div>
+                <div id="plan-window">
+                    <div id="plan-content">
+                        <span class="close" aria-label="Close">&times;</span>
+                        <button v-if="squad.length > 0" id="plan" class="btn btn-primary" @click="planNightOut">Plan Night Out</button>
+                        <input type="text" id="nameInput" placeholder="Profile Name" >
+                
+                        <div id="dollars">
+                            <span class="dollar" id="cheap" @click="setDollarPref($event)">$</span>
+                            <span class="dollar" id="moderate" @click="setDollarPref($event)">$$</span>
+                            <span class="dollar" id="expensive" @click="setDollarPref($event)">$$$</span>
+                        </div>
+                        <div id="drinks">
+                            <img class="drink-pic" id="beer" src="images/beer.jpg" alt="beer" @click="setDrinkPref($event)">
+                            <img class="drink-pic" id="wine" src="images/wine.jpg" alt="wine" @click="setDrinkPref($event)">
+                            <img class="drink-pic" id="shots" src="images/shot.jpg" alt="shots" @click="setDrinkPref($event)">
+                        </div>
+                        <div id="prefs-list">
+                            <p>Price Pref: {{ dollar_pref }}</p>
+                            <p>Drink Pref: {{ drink_pref }}</p>
+                        </div>
+                        <button v-if="dollar_pref && drink_pref" id="add-profile-button" @click= "createProfile"> Create Profile</button>
+                        <div id = "squad">
+                            <h2 v-if="squad.length > 0">Profiles</h2>
+                            <button v-if="squad.length > 0" id="deleteAll" class="btn btn-danger" @click= "deleteAllProfiles()"> Delete All Profiles</button>
+                            <p v-for="(item, index) in squad">
+                                {{item.name}}: {{item.drink_pref}}, {{item.dollar_pref}} prices
+                                <button id="delete-profile-button" @click= "deleteProfile(index)">Delete Profile</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class = "col-lg-10">
+                <div class="map">
+                    <div class="mgl-map-wrapper">
+                        <div class="interactBar">
+                            <div id="rest_b"> Restaurants: <img class="inter-pic" id="rest" src="images/helpImages/rest.png" alt="restaurant"></div>
+                            <div id="rest_b">Bars/Pubs: <img class="inter-pic" id="alc" src="images/helpImages/alc.png" alt="bar"></div>
+                            <div v-if="nightOutPressed" id="rest_b"> Top Choices: <img class="inter-pic" id="pin" src="images/helpImages/pin.png" alt="pin"></div>
+                        </div>
+                        <div id="map" ref="googleMap">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ20cIGE1LdopSoflvb_LuE5iYxDupv9Q&callback=initMap&libraries=places&v=weekly&map_ids=8d193001f940fde3"
+async
+></script>
+<script src="nightout-vue.js"></script>
+</html>
