@@ -37,6 +37,8 @@ When the user is satisfied with their selections they can hit the plan night out
 
 <img alt="Screenshot: Night Out Plan" src="/photos/planned_night.png" width="800" />
 
+Note: The Google Maps Api Key used during the development of this project is deleted. If you would like to use this application you can contact me at amgreer@umich.edu
+
 That's all there is to it. - Cheers 
 
 
