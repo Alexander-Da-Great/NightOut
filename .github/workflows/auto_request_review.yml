@@ -19,7 +19,12 @@ jobs:
           suggestedReviewers=$(curl -s -X GET \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers")
-          echo "suggestedReviewers=$suggestedReviewers" >> $GITHUB_OUTPUT
+          # Check if suggestedReviewers is valid JSON
+          if jq -e . >/dev/null 2>&1 <<<"$suggestedReviewers"; then
+            echo "suggestedReviewers=$suggestedReviewers" >> $GITHUB_OUTPUT
+          else
+            echo "suggestedReviewers={}" >> $GITHUB_OUTPUT
+          fi
         
       - name: Check and Assign Reviewers
         run: |
