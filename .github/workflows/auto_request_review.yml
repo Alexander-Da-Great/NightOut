@@ -19,36 +19,31 @@ jobs:
           suggestedReviewers=$(curl -s -X GET \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers")
-
-          echo "::set-output name=suggestedReviewers::$suggestedReviewers"
+          echo "suggestedReviewers=$suggestedReviewers" >> $GITHUB_OUTPUT
         
       - name: Check and Assign Reviewers
         run: |
           suggestedReviewers="${{ steps.get-reviewers.outputs.suggestedReviewers }}"
-
-          # Check if suggestedReviewers is empty or contains empty arrays
-          if [ -z "$suggestedReviewers" ] || [ "$suggestedReviewers" == '{"users":[],"teams":[]}' ]; then
-            # If there are no suggested reviewers or empty arrays, assign default reviewers
-            defaultReviewers='["keven", "bacon"]'
-
-            for defaultReviewer in $defaultReviewers; do
-              # Use GitHub API to assign default reviewers to the PR
-              curl -X POST \
-                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Content-Type: application/json" \
-                -d "{\"reviewers\": [\"@$defaultReviewer\"]}" \
-                "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers"
-            done
-          else
-            # Extract suggested reviewers and assign them to the PR
+          
+          if [ "$suggestedReviewers" != 'null' ]; then
             reviewers=$(echo "$suggestedReviewers" | jq -r '.users[].login')
-
             for reviewer in $reviewers; do
               # Use GitHub API to assign suggested reviewers to the PR
               curl -X POST \
                 -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                 -H "Content-Type: application/json" \
                 -d "{\"reviewers\": [\"$reviewer\"]}" \
+                "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers"
+            done
+          else
+            # If there are no suggested reviewers, assign default reviewers
+            defaultReviewers='["Alexander-Da-Great "]'
+            for defaultReviewer in $defaultReviewers; do
+              # Use GitHub API to assign default reviewers to the PR
+              curl -X POST \
+                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Content-Type: application/json" \
+                -d "{\"reviewers\": [\"@$defaultReviewer\"]}" \
                 "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers"
             done
           fi
