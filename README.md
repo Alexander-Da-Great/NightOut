@@ -2,7 +2,7 @@
 
 Editors: Alexander Greer, Max Housner, Shields Brian, Aleister Lenhardt
 -final project for UMich's EECS 493 (User Interface Development).
-
+tasd
 Night Out is an application that generates bar crawl destitnations, currently set to three bars, that satisfies the preferences of all members in the group and minimizes the distances between locations. Hopefully this makes the planning component of going out for drinks stress free.
 
 This application uses the [Vue Framework](https://vuejs.org/) for JS. Map rendering was done using [Google Maps](https://www.google.com/maps) and data collection on establishments using the [Google Maps Api](https://developers.google.com/maps).
