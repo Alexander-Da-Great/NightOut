@@ -26,10 +26,10 @@ jobs:
         run: |
           suggestedReviewers="${{ steps.get-reviewers.outputs.suggestedReviewers }}"
 
-          # Check if suggestedReviewers is empty or null
-          if [ -z "$suggestedReviewers" ] || [ "$suggestedReviewers" == 'null' ]; then
-            # If there are no suggested reviewers, assign default reviewers
-            defaultReviewers='["Alexander-Da-Great"]'
+          # Check if suggestedReviewers is empty or contains empty arrays
+          if [ -z "$suggestedReviewers" ] || [ "$suggestedReviewers" == '{"users":[],"teams":[]}' ]; then
+            # If there are no suggested reviewers or empty arrays, assign default reviewers
+            defaultReviewers='["keven", "bacon"]'
 
             for defaultReviewer in $defaultReviewers; do
               # Use GitHub API to assign default reviewers to the PR
